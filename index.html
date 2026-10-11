@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TruthGuard-TL | Evidence Verification Lab</title>
+<style>
+:root {
+  --bg:#080b14;
+  --panel:#101625;
+  --line:#27334b;
+  --text:#eef3ff;
+  --muted:#9ba9c4;
+  --blue:#6da7ff;
+  --cyan:#5ce1e6;
+  --green:#53d7a0;
+  --red:#ff7f91;
+  --amber:#ffc66d;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:radial-gradient(ellipse at top right,#142449 0%,var(--bg) 48%);
+  color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+button,textarea,select { font:inherit; }
+button { cursor:pointer; }
+.wrap { max-width:1240px;margin:auto;padding:26px 20px 48px; }
+header {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;margin-bottom:28px;
+}
+.brand { display:flex;align-items:center;gap:12px; }
+.logo {
+  width:46px;height:46px;border-radius:14px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#4c8dff,#56e0df);
+  color:#07101d;font-size:24px;font-weight:900;
+}
+.brand h1 { font-size:19px;margin:0; }
+.brand p { margin:4px 0 0;color:var(--muted);font-size:12px; }
+.pill {
+  border:1px solid #31537a;background:#12233d;color:#b7d7ff;
+  border-radius:999px;padding:8px 12px;font-size:12px;
+}
+.hero { padding:28px 0 22px; }
+.eyebrow {
+  color:var(--cyan);font-weight:800;text-transform:uppercase;
+  font-size:11px;letter-spacing:2px;
+}
+h2 { font-size:clamp(28px,4vw,43px);line-height:1.08;margin:12px 0; }
+.hero p { color:var(--muted);max-width:760px;line-height:1.7; }
+.grid {
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:18px;align-items:start;
+}
+.card {
+  background:linear-gradient(180deg,#121a2aee,#0e1421f5);
+  border:1px solid var(--line);border-radius:18px;padding:21px;
+}
+.card h3 { margin:0 0 6px;font-size:17px; }
+.sub { color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 18px; }
+label {
+  display:block;font-size:12px;color:#c5d1e8;font-weight:700;
+  margin:16px 0 8px;
+}
+textarea,select {
+  width:100%;background:#0a101c;color:var(--text);
+  border:1px solid #2a3852;border-radius:12px;padding:12px;
+  outline:none;
+}
+textarea { resize:vertical;min-height:84px;line-height:1.55; }
+textarea:focus,select:focus {
+  border-color:var(--blue);box-shadow:0 0 0 3px #6da7ff18;
+}
+textarea::placeholder { color:#63718a; }
+.btn {
+  border:0;border-radius:12px;padding:12px 15px;font-weight:800;
+}
+.primary {
+  color:#07101d;background:linear-gradient(110deg,#76aaff,#62e0df);
+}
+.secondary { background:#1a263b;color:#dce8ff;border:1px solid #31415d; }
+.actions { display:flex;gap:10px;margin-top:18px;flex-wrap:wrap; }
+.actions .btn { flex:1; }
+.note { font-size:11px;line-height:1.55;color:#8595b1;margin-top:13px; }
+.statusline {
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;margin:15px 0 18px;
+}
+.status {
+  display:inline-flex;align-items:center;gap:7px;border-radius:999px;
+  padding:7px 10px;font-size:11px;font-weight:800;
+  background:#17243a;color:#bbd5ff;
+}
+.dot { width:7px;height:7px;background:var(--cyan);border-radius:50%; }
+.scoregrid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:17px; }
+.score { background:#0b1220;border:1px solid #26334a;border-radius:14px;padding:13px; }
+.num { font-size:23px;font-weight:850; }
+.cap { font-size:11px;color:var(--muted);margin-top:4px; }
+.results { display:flex;flex-direction:column;gap:10px; }
+.result { border:1px solid #293750;border-radius:13px;padding:13px;background:#0c1320; }
+.resulttop { display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px; }
+.tag { font-size:10px;font-weight:900;text-transform:uppercase;border-radius:7px;padding:5px 7px; }
+.supported { color:var(--green);background:#14392f; }
+.contradicted { color:var(--red);background:#3b1d2a; }
+.insufficient { color:var(--amber);background:#3a2c18; }
+.claim { font-size:13px;line-height:1.6;overflow-wrap:anywhere; }
+.detail { font-size:11px;color:var(--muted);line-height:1.55;margin-top:7px; }
+.empty {
+  border:1px dashed #33425d;border-radius:14px;padding:26px 18px;
+  text-align:center;color:var(--muted);font-size:13px;line-height:1.7;
+}
+.empty strong { display:block;color:#dce7fb;font-size:14px;margin-bottom:5px; }
+.history { margin-top:18px; }
+.historyhead { display:flex;align-items:center;justify-content:space-between;gap:10px; }
+.historyhead h3 { margin:0; }
+.historylist { display:flex;flex-direction:column;gap:8px;margin-top:12px; }
+.historyitem {
+  display:flex;justify-content:space-between;gap:10px;padding:10px 12px;
+  border-radius:10px;background:#0b1220;border:1px solid #202d42;font-size:12px;
+}
+.historyitem span:last-child { color:var(--muted);white-space:nowrap; }
+footer { color:#6f7f9b;font-size:11px;text-align:center;margin-top:26px;line-height:1.7; }
+.toast {
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:#e5f2ff;color:#0b1422;padding:11px 16px;border-radius:12px;
+  font-size:13px;font-weight:750;display:none;z-index:5;
+}
+@media(max-width:850px) {
+  .grid { grid-template-columns:1fr; }
+  header { align-items:flex-start; }
+  .wrap { padding:18px 13px 35px; }
+}
+@media(max-width:480px) {
+  .scoregrid { grid-template-columns:1fr 1fr; }
+  .score:last-child { grid-column:span 2; }
+  .card { padding:16px; }
+  .actions { flex-direction:column; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">✓</div>
+      <div>
+        <h1>TruthGuard<span style="color:var(--cyan)">-TL</span></h1>
+        <p>Evidence-aware AI research prototype</p>
+      </div>
+    </div>
+    <div class="pill">● LOCAL DEMO · NO API REQUIRED</div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Trustworthy AI · Research Lab</div>
+    <h2>Don't just trust the answer.<br>
+      <span style="color:var(--cyan)">Check the evidence.</span>
+    </h2>
+    <p>Paste an AI answer and the evidence you want to verify it against.
+      TruthGuard-TL checks claim wording against your supplied evidence.
+      This is a research prototype, not a definitive fact-checker.</p>
+  </section>
+
+  <main class="grid">
+    <section class="card">
+      <h3>Verification workspace</h3>
+      <p class="sub">Add a question, the answer to inspect, and source text you trust.</p>
+
+      <label for="language">Question language</label>
+      <select id="language">
+        <option>English</option>
+        <option>Tamil</option>
+        <option>Tanglish (Tamil + English)</option>
+        <option>Mixed / Other</option>
+      </select>
+
+      <label for="question">User question</label>
+      <textarea id="question" placeholder="Example: Who created Python?"></textarea>
+
+      <label for="answer">AI-generated answer</label>
+      <textarea id="answer" style="min-height:130px"
+        placeholder="Paste the answer you want to verify. Use separate sentences."></textarea>
+
+      <label for="evidence">Evidence / trusted source text</label>
+      <textarea id="evidence" style="min-height:130px"
+        placeholder="Paste relevant paragraphs from a trusted source."></textarea>
+
+      <div class="actions">
+        <button class="btn primary" id="verifyBtn">✦ Verify answer</button>
+        <button class="btn secondary" id="sampleBtn">Load sample</button>
+        <button class="btn secondary" id="clearBtn">Clear</button>
+      </div>
+      <p class="note">This standalone page processes text locally in your browser.
+        It does not send your inputs to a server.</p>
+    </section>
+
+    <section class="card">
+      <div class="statusline">
+        <div>
+          <h3>Verification report</h3>
+          <p class="sub" style="margin:5px 0 0">Claim-by-claim preliminary analysis</p>
+        </div>
+        <span class="status"><span class="dot"></span><span id="reportState">Waiting for input</span></span>
+      </div>
+
+      <div class="scoregrid">
+        <div class="score"><div class="num" id="checkedCount">—</div><div class="cap">Claims checked</div></div>
+        <div class="score"><div class="num" id="supportCount" style="color:var(--green)">—</div><div class="cap">Text-supported</div></div>
+        <div class="score"><div class="num" id="uncertainCount" style="color:var(--amber)">—</div><div class="cap">Needs review</div></div>
+      </div>
+
+      <div id="results" class="results">
+        <div class="empty">
+          <strong>Your report will appear here</strong>
+          Enter an answer and its evidence, then select Verify answer.
+          <br>This demo uses text overlap heuristics, not a trained AI model.
+        </div>
+      </div>
+
+      <p class="note">“Text-supported” means wording overlaps with your evidence;
+        it does not prove the claim is true. Possible contradiction is only a
+        preliminary signal. Review source context before drawing conclusions.</p>
+
+      <div class="history">
+        <div class="historyhead">
+          <h3>Recent checks</h3>
+          <button id="clearHistory" class="btn secondary" style="padding:7px 10px;font-size:11px">Clear history</button>
+        </div>
+        <div id="historyList" class="historylist">
+          <div class="empty" style="padding:14px">No checks yet in this session.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    TruthGuard-TL · Final-year AI/ML research prototype<br>
+    This demo does not connect to an LLM or guarantee factual correctness.
+  </footer>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const STOP = new Set(
+    ("the a an and or but if then than is are was were be been being to of in on at by for from with as that this these those it its he she they them their we you your i who what when where why how do does did can could will would should has have had not no yes into about after before during also very more most some any each other such").split(" ")
+  );
+  let history = [];
+
+  function notify(message) {
+    const t = $("toast");
+    t.textContent = message;
+    t.style.display = "block";
+    clearTimeout(notify.timer);
+    notify.timer = setTimeout(() => t.style.display = "none", 2600);
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[c]));
+  }
+
+  function normalize(s) {
+    return s.toLocaleLowerCase()
+      .replace(/https?:\/\/\S+/g, " ")
+      .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
+      .replace(/\s+/g, " ").trim();
+  }
+
+  function tokens(s) {
+    return normalize(s).split(/\s+/u)
+      .filter(w => w.length > 1 && !STOP.has(w));
+  }
+
+  function splitClaims(s) {
+    return s.replace(/\n+/g, ". ")
+      .split(/(?<=[.!?。])\s+|[;；]\s*/u)
+      .map(x => x.trim()).filter(Boolean);
+  }
+
+  function overlapScore(claimTokens, evidenceTokens) {
+    if (!claimTokens.length || !evidenceTokens.length) return 0;
+    const ev = new Set(evidenceTokens);
+    return claimTokens.filter(t => ev.has(t)).length /
+      new Set(claimTokens).size;
+  }
+
+  function hasNegation(s) {
+    return /\b(not|no|never|neither|isn't|aren't|wasn't|weren't|cannot|can't|didn't|doesn't|false|incorrect)\b|இல்லை|அல்ல|கிடையாது|இல்ல/u.test(normalize(s));
+  }
+
+  function analyse(claim, evidence) {
+    const ct = tokens(claim), et = tokens(evidence);
+    if (!ct.length || !et.length) {
+      return {label:"Insufficient evidence",cls:"insufficient",score:0,
+        detail:"Not enough text to compare."};
+    }
+
+    const score = overlapScore(ct, et);
+    const cNeg = hasNegation(claim), eNeg = hasNegation(evidence);
+
+    if (score >= 0.5 && cNeg !== eNeg && ct.length >= 4) {
+      return {label:"Possible contradiction",cls:"contradicted",score,
+        detail:`Word overlap ${(score*100).toFixed(0)}%. A negation pattern differs; inspect the source context.`};
+    }
+    if (score >= 0.55) {
+      return {label:"Text-supported",cls:"supported",score,
+        detail:`Word overlap ${(score*100).toFixed(0)}%. Lexical similarity is not semantic proof.`};
+    }
+    if (score >= 0.25) {
+      return {label:"Needs review",cls:"insufficient",score,
+        detail:`Word overlap ${(score*100).toFixed(0)}%. Some terms match, but support is unclear.`};
+    }
+    return {label:"Insufficient evidence",cls:"insufficient",score,
+      detail:`Word overlap ${(score*100).toFixed(0)}%. The supplied evidence has few matching terms.`};
+  }
+
+  function renderReport(claims, evidence) {
+    const analysed = claims.map(claim => ({claim, ...analyse(claim,evidence)}));
+    $("checkedCount").textContent = analysed.length;
+    $("supportCount").textContent = analysed.filter(x => x.cls === "supported").length;
+    $("uncertainCount").textContent = analysed.filter(x => x.cls !== "supported").length;
+    $("reportState").textContent = "Check complete";
+
+    $("results").innerHTML = analysed.map((r,i) => `
+      <article class="result">
+        <div class="resulttop">
+          <span style="font-size:11px;color:var(--muted)">CLAIM ${i+1}</span>
+          <span class="tag ${r.cls}">${escapeHTML(r.label)}</span>
+        </div>
+        <div class="claim">${escapeHTML(r.claim)}</div>
+        <div class="detail">${escapeHTML(r.detail)}</div>
+      </article>`).join("");
+
+    history.unshift({
+      question:$("question").value.trim() || "No question supplied",
+      count:claims.length,
+      supported:analysed.filter(x => x.cls === "supported").length,
+      time:new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})
+    });
+    history = history.slice(0,5);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    $("historyList").innerHTML = history.length
+      ? history.map(h => `
+        <div class="historyitem">
+          <span>${escapeHTML(h.question.slice(0,55))}${h.question.length>55?"…":""}</span>
+          <span>${h.supported}/${h.count} text-supported · ${h.time}</span>
+        </div>`).join("")
+      : '<div class="empty" style="padding:14px">No checks yet in this session.</div>';
+  }
+
+  $("verifyBtn").addEventListener("click", () => {
+    const answer = $("answer").value.trim();
+    const evidence = $("evidence").value.trim();
+
+    if (!answer) {
+      notify("Please paste an AI answer first.");
+      $("answer").focus();
+      return;
+    }
+    if (!evidence) {
+      notify("Please paste source evidence first.");
+      $("evidence").focus();
+      return;
+    }
+
+    const claims = splitClaims(answer);
+    if (!claims.length) {
+      notify("Could not find any claims to check.");
+      return;
+    }
+
+    renderReport(claims, evidence);
+    notify("Preliminary text comparison complete.");
+  });
+
+  $("sampleBtn").addEventListener("click", () => {
+    $("language").value = "English";
+    $("question").value = "Who created Python?";
+    $("answer").value =
+      "Python was created by Guido van Rossum. Python was first released in 1991. James Gosling created Python.";
+    $("evidence").value =
+      "Python was conceived in the late 1980s by Guido van Rossum. Its implementation began in December 1989, and Python was first released in 1991. James Gosling is known for creating the Java programming language.";
+    notify("Sample loaded. Select Verify answer.");
+  });
+
+  $("clearBtn").addEventListener("click", () => {
+    ["question","answer","evidence"].forEach(id => $(id).value = "");
+    $("checkedCount").textContent = "—";
+    $("supportCount").textContent = "—";
+    $("uncertainCount").textContent = "—";
+    $("reportState").textContent = "Waiting for input";
+    $("results").innerHTML = `
+      <div class="empty">
+        <strong>Your report will appear here</strong>
+        Enter an answer and its evidence, then select Verify answer.
+        <br>This demo uses text overlap heuristics, not a trained AI model.
+      </div>`;
+    notify("Workspace cleared.");
+  });
+
+  $("clearHistory").addEventListener("click", () => {
+    history = [];
+    renderHistory();
+    notify("History cleared.");
+  });
+})();
+</script>
+</body>
+</html>
